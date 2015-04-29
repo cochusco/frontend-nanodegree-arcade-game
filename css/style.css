@@ -71,9 +71,8 @@
 	}
 
 	.image-puppet {
-		width: 70px;
-		height: 70px;
-
+		width: 25%;
+		min-width: 50px;
 	}
 
 	.morph {
