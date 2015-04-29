@@ -207,7 +207,7 @@ Player.prototype.update = function() {
 		this.setInitPosition(gameboard.getInitPlayerCoord());
 	}
 	//reckon if there are any collisions.
-	for (var i = 0; i < allEnemies.length ; i ++ ) {
+	for (var i = 0; i < allEnemies.length; i++) {
 		if (this.isCollision(allEnemies[i])) {
 			this.killed();
 			break;
@@ -228,7 +228,7 @@ Player.prototype.render = function() {
 Player.prototype.killed = function() {
 	this.setInitPosition();
 	this.lifes--;
-	if (this.lifes === 0) this.handleInput = null;
+	if (this.lifes === 0) this.handleInput = function(){};
 
 };
 
