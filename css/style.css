@@ -1,0 +1,95 @@
+	body {
+		display: flex;
+		justify-content: center;
+		text-align: center;
+	}
+
+	h4 {
+		text-align:center;
+		 margin-bottom: 0px;
+		  font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+	}
+
+	.grid {
+	    margin: 0 auto;
+	    max-width: 1200px;
+	    width: 100%;
+	}
+
+	.row {
+	    width: 100%;
+	    margin-bottom: 20px;
+	    display: flex;
+	}
+
+	.col-1 {
+	    width: 8.33%;
+	}
+
+	.col-2 {
+	    width: 16.66%;
+	}
+
+	.col-3 {
+	    width: 25%;
+	}
+
+	.col-4 {
+	    width: 33.33%;
+	}
+
+	.col-5 {
+	    width: 41.66%;
+	}
+
+	.col-6 {
+	    width: 50%;
+	}
+
+	.col-7 {
+	    width: 58.33%;
+	}
+
+	.col-8 {
+	    width: 66.66%;
+	}
+
+	.col-9 {
+	    width: 75%;
+	}
+
+	.col-10 {
+	    width: 83.33%;
+	}
+
+	.col-11 {
+	    width: 91.66%;
+	}
+
+	.col-12 {
+	    width: 100%;
+	}
+
+	.image-puppet {
+		width: 70px;
+		height: 70px;
+
+	}
+
+	.morph {
+		-webkit-transition: all 0.5s ease;
+		-moz-transition: all 0.5s ease;
+		-o-transition: all 0.5s ease;
+		-ms-transition: all 0.5s ease;
+		transition: all 0.5s ease;
+	}
+
+	.morph:hover {
+		border-radius: 50%;
+		-webkit-transform: rotate(360deg);
+		-moz-transform: rotate(360deg);
+		-o-transform: rotate(360deg);
+		-ms-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+
