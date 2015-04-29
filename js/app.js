@@ -3,6 +3,7 @@ var SCALE_HEARTH = 0.45;
 var FINISH_POINTS = 20;
 var ENEMY_SPEED = 200;
 var PLAYER_LIFES = 3;
+var RELOAD_MESSAGE = 'Reload your browser to continue';
 
 // Coordinate class.
 var Coordinate = function(x, y) {
@@ -87,7 +88,7 @@ var gameboard = {
 		ctx.fillText('Game Over', this.CANVASWIDTH / 2 - 150, this.CANVASHEIGHT / 2 - 30);
 		ctx.font = '20pt Calibri';
 		ctx.fillStyle = 'black';
-		ctx.fillText('Press F5 to continue', this.CANVASWIDTH / 2 - 100, this.CANVASHEIGHT / 2);
+		ctx.fillText(RELOAD_MESSAGE, this.CANVASWIDTH / 2 - 180, this.CANVASHEIGHT / 2);
 	},
 	renderPoints: function(points) {
 		ctx.clearRect(0, 0, 150, 48);
