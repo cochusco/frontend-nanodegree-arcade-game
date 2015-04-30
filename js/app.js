@@ -1,19 +1,23 @@
 var HEARTH_IMG_PATH = 'images/Heart.png';
-var SCALE_HEARTH = 0.45;
+var SCALE_HEARTH = 0.45; // heath image escalation rate
 var FINISH_POINTS = 20;
 var ENEMY_SPEED = 200;
 var PLAYER_LIFES = 3;
 var RELOAD_MESSAGE = 'Reload your browser to continue';
 
-// Coordinate class.
+/**
+ * Represents a coordinate.
+ * @constructor
+ */
 var Coordinate = function(x, y) {
 	this.x = x;
 	this.y = y;
 };
 
-// Gameboard object models the board as a grid.
-// I tried to parametrize the gameboard (ie its relative easy to change size, rows, grass line..) and decoupling as much as posible
-// gameboard from artifacts.
+/** Gameboard object models the board as a grid.
+ * I tried to parametrize the gameboard (ie its relative easy to change size, rows, grass line..) and decoupling as much as posible
+ * gameboard from artifacts.
+ */
 var gameboard = {
 	CANVASHEIGHT: 606,
 	CANVASWIDTH: 505,
@@ -38,32 +42,63 @@ var gameboard = {
 	get rowWidth() {
 		return (this.xyEnd.x - this.xyInit.x) / this.COLUMNS;
 	},
+	// y coordinate of the lower water limit.
 	get waterlimit() {
 		return this.xyEnd.y - this.rowHeight * (this.ROWS - this.WATERROWS);
 	},
+	// y coordinate of the upper grass limit.
 	get grasslimit() {
 		return this.xyEnd.y - this.rowHeight * this.GRASSROWS;
 	},
+	/**
+	 * Get a coordinate one box up, if the new coordinate is
+	 * outside the game area return the same coordinate.
+	 * @param {Coordinate}
+	 * @return {Coordinate}
+	 */
 	getUpCoord: function(coord) {
 		var y = coord.y - this.rowHeight;
 		if (y < this.xyInit.y) return coord;
 		else return new Coordinate(coord.x, y);
 	},
+	/**
+	 * Get a coordinate one box down, if the new coordinate is
+	 * outside the game area return the same coordinate.
+	 * @param {Coordinate}
+	 * @return {Coordinate}
+	 */
 	getDownCoord: function(coord) {
 		var y = coord.y + this.rowHeight;
 		if (y > this.xyEnd.y) return coord;
 		else return new Coordinate(coord.x, y);
 	},
+	/**
+	 * Get a coordinate one box right, if the new coordinate is
+	 * outside the game area return the same coordinate.
+	 * @param {Coordinate}
+	 * @return {Coordinate}
+	 */
 	getRightCoord: function(coord) {
 		var x = coord.x + this.rowWidth;
 		if (x > this.xyEnd.x) return coord;
 		else return new Coordinate(x, coord.y);
 	},
+	/**
+	 * Get a coordinate one box left, if the new coordinate is
+	 * outside the game area return the same coordinate.
+	 * @param {Coordinate}
+	 * @return {Coordinate}
+	 */
 	getLeftCoord: function(coord) {
 		var x = coord.x - this.rowWidth;
 		if (x < this.xyInit.x) return coord;
 		else return new Coordinate(x, coord.y);
 	},
+	/**
+	 * Get a random initial position for an enemy , the position will be
+	 * in the stone area and the x coodinate starts in the left side , outside the visible area.
+	 * @return {Coordinate}
+	 */
 	getInitEnemyCoord: function() {
 		var x = -(100 + this.CANVASWIDTH * Math.random());
 		var y = ((Math.floor(Math.random() * this.STONEROWS)) * this.rowHeight) + this.xyInit.y + (this.WATERROWS * this.rowHeight);
@@ -111,6 +146,10 @@ var gameboard = {
 
 };
 
+/**
+ * Represents an artifact , an animated or inanimated object which is placed in the gameboard.
+ * @constructor
+ */
 var Artifact = function() {
 	this.x;
 	this.y;
@@ -125,8 +164,11 @@ Artifact.prototype.setPosition = function(coordinate) {
 Artifact.prototype.getPosition = function() {
 	return new Coordinate(this.x, this.y);
 };
-// get the contact surface, can be diferent that the image showed
-// (ie because it has transparency) , by default is the equivalent of a box.
+
+/**
+ * get the contact surface of the artifact, can be diferent that the image showed
+ * (ie because it has transparency) , by default is the equivalent of a box.
+ */
 Artifact.prototype.getSurface = function() {
 	// a little bit of margin
 	var offsetPixels = 5;
@@ -137,6 +179,11 @@ Artifact.prototype.getSurface = function() {
 	return [xyInit, xyEnd];
 };
 
+/**
+ * Calculates whether an antifact crash with another in base of their surface.
+ * @param {Artifact}
+ * @return {boolean}
+ */
 Artifact.prototype.isCollision = function(artifact) {
 	var own = this.getSurface();
 	var other = artifact.getSurface();
@@ -147,6 +194,12 @@ Artifact.prototype.isCollision = function(artifact) {
 		(own[0].x > (other[1].x))
 	);
 };
+
+/**
+ * Represents an Enemy.
+ * @constructor
+ * @extends Artifact
+ */
 var Enemy = function() {
 	Artifact.call(this);
 	this.setPosition(gameboard.getInitEnemyCoord());
@@ -166,6 +219,11 @@ Enemy.prototype.render = function() {
 	ctx.drawImage(image, 0, 70, image.width, image.height - 90, this.x, this.y, image.width, gameboard.rowHeight);
 };
 
+/**
+ * Represents the player.
+ * @constructor
+ * @extends Artifact
+ */
 var Player = function() {
 	Artifact.call(this);
 	this.init();
@@ -206,7 +264,7 @@ Player.prototype.update = function() {
 		this.points += FINISH_POINTS;
 		this.setInitPosition(gameboard.getInitPlayerCoord());
 	}
-	//reckon if there are any collisions.
+	//checks if there are any collisions with enemies.
 	for (var i = 0; i < allEnemies.length; i++) {
 		if (this.isCollision(allEnemies[i])) {
 			this.killed();
@@ -223,12 +281,14 @@ Player.prototype.render = function() {
 	if (this.lifes === 0) gameboard.renderGameOver();
 };
 
-// take a a life and restart initial position ,if
-// there are not remaining lifes cancel the input.
+/**
+ * take a a life and restart initial position , if
+ * there are not remaining lifes cancel input actions.
+ */
 Player.prototype.killed = function() {
 	this.setInitPosition();
 	this.lifes--;
-	if (this.lifes === 0) this.handleInput = function(){};
+	if (this.lifes === 0) this.handleInput = function() {};
 
 };
 
@@ -236,18 +296,25 @@ Player.prototype.setInitPosition = function() {
 	this.setPosition(gameboard.getInitPlayerCoord());
 };
 
+/**
+ * Initialice player.
+ */
 Player.prototype.init = function() {
 	this.setInitPosition();
 	this.lifes = PLAYER_LIFES;
 	this.points = 0;
 };
 
-// Used to add poinf if the player is in stone
+/**
+ * Add point if the player is in stone.
+ */
 Player.prototype.addPointsInStone = function() {
 	if (gameboard.isStoneCoord(this.getPosition())) this.points++;
 };
 
+// Initialice enemies.
 var allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
+// Initialice player.
 var player = new Player();
 
 document.addEventListener('keyup', function(e) {
@@ -260,26 +327,33 @@ document.addEventListener('keyup', function(e) {
 	player.handleInput(allowedKeys[e.keyCode]);
 });
 
-// change player image with the selected in the HTML.
-function choosePlayer(e, player) {
-	e.stopPropagation();
-	e.preventDefault();
-	var path = e.target.src;
+/**
+ * change artifact image with the selected in the HTML.
+ * @param {Event} event
+ * @param {Artifact} artifact
+ */
+function choosePlayer(event, artifact) {
+	event.stopPropagation();
+	event.preventDefault();
+	var path = event.target.src;
 	var res = path.split('/');
+	//cut the full path , only relative path is needed.
 	path = res[res.length - 2] + '/' + res[res.length - 1];
-	player.sprite = path;
+	artifact.sprite = path;
 }
 
-// Helper class draws a circle in x y coodinate.
+/**
+ * Helper class draws a 3px circle in x y coodinate.
+ */
 function drawPoint(coord) {
 	ctx.beginPath();
 	ctx.arc(coord.x, coord.y, 3, 0, 2 * Math.PI, true);
 	ctx.fill();
 }
 
-// add player icon change event
+// add player icon change event.
 window.onload = addPlayerSelectorEvent;
-
+// add click listener to the player image selector.
 function addPlayerSelectorEvent() {
 	document.getElementsByClassName('player-selector')[0].addEventListener('click', function(event) {
 		choosePlayer(event, player);
